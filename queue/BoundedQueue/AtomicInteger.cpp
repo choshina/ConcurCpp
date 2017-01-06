@@ -1,0 +1,92 @@
+#include "AtomicInteger.h"
+
+AtomicInteger::AtomicInteger()
+{
+	
+}
+
+AtomicInteger::AtomicInteger(int initialValue)
+{
+	value = initialValue;
+}
+
+int AtomicInteger::getAndSet(int newValue)
+{
+	while(true){
+		int current = get();
+		if(compareAndSet(current,newValue))
+			return current;
+	}
+}
+
+int AtomicInteger::getAndIncrement()
+{
+	while(true){
+		int current = get();
+		int newValue = current + 1;
+		if(compareAndSet(current,newValue))
+			return current;
+	}
+}
+
+int AtomicInteger::getAndDecrement()
+{
+	while(true){
+		int current = get();
+		int newValue = current - 1;
+		if(compareAndSet(current,newValue))
+			return current;
+	}
+}
+
+int AtomicInteger::getAndAdd(int delta)
+{
+	while(true){
+		int current = get();
+		int newValue = current + delta;
+		if(compareAndSet(current, newValue))
+			return current;
+	}
+}
+
+int AtomicInteger::incrementAndGet()
+{
+	while(true){
+		int current = get();
+		int newValue = current + 1;
+		if(compareAndSet(current,newValue))
+			return newValue;
+	}
+}
+
+int AtomicInteger::decrementAndGet()
+{
+	while(true){
+		int current = get();
+		int newValue = current - 1;
+		if(compareAndSet(current,newValue))
+			return newValue;
+	}
+}
+
+int AtomicInteger::addAndGet(int delta)
+{
+	while(true){
+		int current = get();
+		int newValue = current + delta;
+		if(compareAndSet(current,newValue))
+			return newValue;
+	}
+}
+
+string AtomicInteger::toString()
+{
+	stringstream ss;
+	ss<<get();
+	return ss.str();
+}
+
+bool AtomicInteger::compareAndSet(int expect,int update)
+{
+	return cmpxchg(update,&value,expect) == expect;
+}

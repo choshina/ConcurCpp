@@ -1,0 +1,51 @@
+#ifndef ATOMICINTEGER_H_
+#define ATOMICINTEGER_H_
+
+#include "cmpxchg.h"
+#include <string>
+#include <sstream>
+#include <iostream>
+using namespace std;
+
+#define MP 4
+#define LOCK_IF_MP(mp) "cmp $0,"#mp ";je 1f;lock;1:"
+
+class AtomicInteger{
+private:
+//	bool compareAndSet(int expected,int update);
+	volatile int value;
+	int cmpxchg(int exchange_value,volatile int* dest,int compare_value){
+		int mp = MP;
+		__asm__ __volatile__(
+			LOCK_IF_MP(%4) "cmpxchgl %1,(%3)"
+			:"=a" (exchange_value)
+			:"r" (exchange_value),"a"(compare_value), "r"(dest),"r"(mp)
+			:"cc","memory"
+		);
+		return exchange_value;
+	}
+public:
+	AtomicInteger(int initialValue);
+	AtomicInteger();
+	int get(){
+		return value;
+	}
+	void set(int newValue){
+		value = newValue;
+	}
+	int getAndSet(int newValue);
+	bool compareAndSet(int expect,int update);
+	int getAndIncrement();
+	int getAndDecrement();
+	int getAndAdd(int delta);
+	int incrementAndGet();
+	int decrementAndGet();
+	int addAndGet(int delta);
+	string toString();
+	int intValue(){return get();}
+	long longValue(){return (long)get();}
+	float floatValue(){return (float)get();}
+	double doubleValue(){return (double)get();}
+};
+
+#endif
